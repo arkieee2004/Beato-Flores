@@ -1,0 +1,5 @@
+import mongoose from 'mongoose';
+const itemSchema = new mongoose.Schema({ product:{type:mongoose.Schema.Types.ObjectId,ref:'Product',required:true}, name:{type:String,required:true}, quantity:{type:Number,required:true,min:1}, unitPrice:{type:Number,required:true,min:0} }, {_id:false});
+const schema = new mongoose.Schema({ orderNumber:{type:String,unique:true}, client:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true}, items:{type:[itemSchema],validate:v=>v.length>0}, total:{type:Number,required:true,min:0}, status:{type:String,enum:['pending','confirmed','preparing','ready','completed','cancelled'],default:'pending'}, paymentStatus:{type:String,enum:['unpaid','paid','refunded'],default:'unpaid'}, paymentMethod:{type:String,default:'cash'}, notes:{type:String,default:''}, stockDeducted:{type:Boolean,default:false} },{timestamps:true});
+schema.pre('validate', function(next){ if(!this.orderNumber) this.orderNumber='BF-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase(); next(); });
+export default mongoose.model('Order',schema);
